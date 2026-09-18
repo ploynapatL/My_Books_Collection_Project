@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "username": "john_doe",
+    "email": "john.doe@example.com",
+    "passwordHash": "securepasswordhash"
+  },
+  {
+    "id": 2,
+    "username": "Belle",
+    "email": "ploynapat.lardchaviang@g.swu.ac.th",
+    "password": "$2b$10$hlh6IRgw8lLhRDrVSBrE2uzSW7X1XtscULvkO7RUp2gtmwDCqCb/i"
+  }
+]

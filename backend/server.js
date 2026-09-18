@@ -1,5 +1,13 @@
+require("dotenv").config();
+
 const express = require("express");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
 const myCollec = require("./myCollec");
+const userAuth = require("./userAuth");
+const authenticateToken = require("./middleware/auth");
+
 const path = require("path");
 
 const app = express();
@@ -26,8 +34,116 @@ function validateBookBody(body) {
   return true;
 }
 
+app.get("/api/auth/verify", authenticateToken, (req, res) => {
+  res.status(200).json({
+    message: "Token is valid",
+    user: req.user
+  });
+});
+
+// REGISTER
+app.post("/api/register", async (req, res) => {
+  const { username, email, password } = req.body;
+
+  if (!username || !email || !password) {
+    return res.status(400).json({
+      error: "Username, email, and password are required"
+    });
+  }
+
+  try {
+    const existingUser = await userAuth.getUserByEmail(email);
+
+    if (existingUser) {
+      return res.status(409).json({
+        error: "Email is already registered"
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await userAuth.addUser({
+      username,
+      email,
+      password: hashedPassword
+    });
+
+    res.status(201).json({
+      message: "Registration successful",
+      user: {
+        id: newUser.id,
+        username: newUser.username,
+        email: newUser.email
+      }
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Failed to register user"
+    });
+  }
+});
+
+// LOGIN
+app.post("/api/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({
+      error: "Email and password are required"
+    });
+  }
+
+  try {
+    const user = await userAuth.getUserByEmail(email);
+
+    if (!user) {
+      return res.status(401).json({
+        error: "Invalid email or password"
+      });
+    }
+
+    const passwordCorrect = await bcrypt.compare(
+      password,
+      user.password
+    );
+
+    if (!passwordCorrect) {
+      return res.status(401).json({
+        error: "Invalid email or password"
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        id: user.id,
+        username: user.username,
+        email: user.email
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h"
+      }
+    );
+
+    res.status(200).json({
+      message: "Login successful",
+      token
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Failed to login"
+    });
+  }
+});
+
 // READ all books
-app.get("/api/books", async (req, res) => {
+app.get("/api/books", authenticateToken, async (req, res) => {
   try {
     const books = await myCollec.getBooks();
     res.status(200).json(books);
@@ -54,7 +170,7 @@ app.get("/api/books/:id", async (req, res) => {
 });
 
 // CREATE a book
-app.post("/api/books", async (req, res) => {
+app.post("/api/books", authenticateToken, async (req, res) => {
   if (!validateBookBody(req.body)) {
     return res.status(400).json({
       error: "Title, author, and at least one genre are required"
@@ -71,7 +187,7 @@ app.post("/api/books", async (req, res) => {
 });
 
 // UPDATE a book
-app.put("/api/books/:id", async (req, res) => {
+app.put("/api/books/:id", authenticateToken, async (req, res) => {
   if (!validateBookBody(req.body)) {
     return res.status(400).json({
       error: "Title, author, and at least one genre are required"
@@ -93,7 +209,7 @@ app.put("/api/books/:id", async (req, res) => {
 });
 
 // DELETE a book
-app.delete("/api/books/:id", async (req, res) => {
+app.delete("/api/books/:id", authenticateToken, async (req, res) => {
   try {
     const book = await myCollec.deleteBook(req.params.id);
 

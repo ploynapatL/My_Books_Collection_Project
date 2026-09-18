@@ -23,6 +23,12 @@ function showMessage(text = "", isError = false) {
   message.className = isError ? "message error" : "message";
 }
 
+const token = localStorage.getItem("token");
+
+if (!token) {
+  window.location.href = "login.html";
+}
+
 function getBookGenres(book) {
   return Array.isArray(book.genre) ? book.genre : [];
 }
@@ -238,11 +244,18 @@ async function saveBook(event) {
   const url = id ? `${API_URL}/${id}` : API_URL;
 
   try {
+    const token = localStorage.getItem("token");
+
     const response = await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
+    method,
+
+    headers: {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${token}`
+  },
+
+  body: JSON.stringify(data)
+});
 
     const result = await response.json();
 
@@ -266,8 +279,14 @@ async function deleteBook(id) {
   if (!confirmed) return;
 
   try {
+    const token = localStorage.getItem("token");
+
     const response = await fetch(`${API_URL}/${id}`, {
-      method: "DELETE"
+    method: "DELETE",
+
+    headers: {
+    "Authorization": `Bearer ${token}`
+    }
     });
 
     const result = await response.json();
