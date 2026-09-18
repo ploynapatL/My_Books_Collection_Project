@@ -50,5 +50,14 @@
         "Classic",
         "Tragedy"
         ]
+    },
+    {
+        "id": 8,
+        "title": "To Kill a Mockingbird",
+        "author": "Harper Lee",
+        "genre": [
+        "Classic",
+        "Historical Fiction"
+        ]
     }
 ]
