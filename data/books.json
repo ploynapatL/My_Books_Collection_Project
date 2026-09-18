@@ -41,5 +41,14 @@
     "genre": [
       "Adventure"
     ]
-  }
+  },
+    {
+        "id": 7,
+        "title": "The Great Gatsby",
+        "author": "F. Scott Fitzgerald",
+        "genre": [
+        "Classic",
+        "Tragedy"
+        ]
+    }
 ]
