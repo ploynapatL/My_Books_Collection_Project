@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>myBook — My Collection</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="navbar container">
+      <a class="brand" href="main.html"><span class="brand-mark">m</span>myBook</a>
+      <div class="nav-links">
+        <a href="main.html">Home</a>
+        <a class="active" href="books.html">My Collection</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="collection-page container">
+    <section class="collection-heading">
+      <div>
+        <span class="eyebrow">Your personal library</span>
+        <h1>Let's add your collection.</h1>
+        <p>Manage your books through your passionate.</p>
+      </div>
+      <button class="button primary" id="openAddBtn">＋ Add Book</button>
+    </section>
+
+    <section class="toolbar" aria-label="Book search and filtering">
+      <label class="search-box">
+        <span>⌕</span>
+        <input id="searchInput" type="search" placeholder="Search books..." autocomplete="off">
+      </label>
+      <div class="genre-filter">
+        <span class="filter-label">Genres</span>
+        <div id="genreFilter" class="genre-options" aria-label="Filter by genre"></div>
+      </div>
+    </section>
+
+    <div id="message" class="message" role="status" aria-live="polite"></div>
+    <div id="booksGrid" class="books-grid"></div>
+
+    <div id="emptyState" class="empty-state hidden">
+      <div class="empty-icon">✿</div>
+      <h2>No books found</h2>
+      <p>Try another search or genre, or add a new book to your collection.</p>
+    </div>
+  </main>
+
+  <div id="bookModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" id="closeModalBtn" aria-label="Close">×</button>
+      <span class="eyebrow">Book details</span>
+      <h2 id="modalTitle">Add a book</h2>
+      <form id="bookForm">
+        <input id="bookId" type="hidden">
+        <label>Title<input id="titleInput" name="title" required maxlength="150"></label>
+        <label>Author<input id="authorInput" name="author" required maxlength="120"></label>
+        <fieldset class="genre-fieldset">
+          <legend>Genres <span>(select one or more)</span></legend>
+          <div id="genreOptions" class="genre-options modal-genres"></div>
+        </fieldset>
+        <button class="button primary full" type="submit" id="saveBookBtn">Save Book</button>
+      </form>
+    </section>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div><a class="brand" href="main.html"><span class="brand-mark">m</span>myBook</a><p>A quiet place for your favorite stories.</p></div>
+      <p>© 2026 myBook. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

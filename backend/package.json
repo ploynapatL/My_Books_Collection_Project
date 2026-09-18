@@ -1,0 +1,12 @@
+{
+  "name": "mybook",
+  "version": "1.0.0",
+  "description": "Beginner-friendly full-stack book collection app using Node.js, Express, Vanilla JS and JSON.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.22.2"
+  }
+}
