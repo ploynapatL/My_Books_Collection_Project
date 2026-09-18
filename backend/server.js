@@ -1,4 +1,5 @@
 require("dotenv").config();
+// console.log("JWT secret loaded:", !!process.env.JWT_SECRET);
 
 const express = require("express");
 const bcrypt = require("bcryptjs");
@@ -145,7 +146,7 @@ app.post("/api/login", async (req, res) => {
 // READ all books
 app.get("/api/books", authenticateToken, async (req, res) => {
   try {
-    const books = await myCollec.getBooks();
+    const books = await myCollec.getBooksByOwner(req.user.id);
     res.status(200).json(books);
   } catch (error) {
     console.error(error);
@@ -178,7 +179,7 @@ app.post("/api/books", authenticateToken, async (req, res) => {
   }
 
   try {
-    const book = await myCollec.addBook(req.body);
+    const book = await myCollec.addBook(req.body, req.user.id);
     res.status(201).json(book);
   } catch (error) {
     console.error(error);
@@ -195,7 +196,7 @@ app.put("/api/books/:id", authenticateToken, async (req, res) => {
   }
 
   try {
-    const book = await myCollec.updateBook(req.params.id, req.body);
+    const book = await myCollec.updateBook(req.params.id, req.body, req.user.id);
 
     if (!book) {
       return res.status(404).json({ error: "Book not found" });
@@ -211,7 +212,7 @@ app.put("/api/books/:id", authenticateToken, async (req, res) => {
 // DELETE a book
 app.delete("/api/books/:id", authenticateToken, async (req, res) => {
   try {
-    const book = await myCollec.deleteBook(req.params.id);
+    const book = await myCollec.deleteBook(req.params.id, req.user.id);
 
     if (!book) {
       return res.status(404).json({ error: "Book not found" });

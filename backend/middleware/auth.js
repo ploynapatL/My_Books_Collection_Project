@@ -18,8 +18,10 @@ function authenticateToken(req, res, next) {
     );
 
     req.user = decoded;
+    console.log("Decoded JWT:", decoded);
 
     next();
+
   } catch (error) {
     return res.status(401).json({
       error: "Invalid or expired token"

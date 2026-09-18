@@ -10,6 +10,63 @@ function showAuthMessage(text, isError = false) {
     isError ? "message error" : "message";
 }
 
+function updateNavbar() {
+  const token = localStorage.getItem("token");
+
+  const guestElements =
+    document.querySelectorAll(".guest-only");
+
+  const userElements =
+    document.querySelectorAll(".user-only");
+
+  if (token) {
+
+    // Logged in
+    guestElements.forEach(element => {
+      element.style.display = "none";
+    });
+
+    userElements.forEach(element => {
+      element.style.display = "";
+
+    });
+
+  } else {
+
+    // Not logged in
+    guestElements.forEach(element => {
+      element.style.display = "";
+    });
+
+    userElements.forEach(element => {
+      element.style.display = "none";
+    });
+
+  }
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  updateNavbar();
+
+  const logoutButton =
+    document.getElementById("logoutButton");
+
+  if (logoutButton) {
+
+    logoutButton.addEventListener("click", () => {
+
+      localStorage.removeItem("token");
+
+      window.location.href = "login.html";
+
+    });
+
+  }
+
+});
+
 if (registerForm) {
   registerForm.addEventListener("submit", async event => {
     event.preventDefault();
@@ -106,3 +163,4 @@ if (loginForm) {
     }
   });
 }
+

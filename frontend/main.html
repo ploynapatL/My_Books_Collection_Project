@@ -6,6 +6,7 @@
   <title>myBook — Your Reading Collection</title>
   <link rel="stylesheet" href="style.css">
 </head>
+<script src="auth.js"></script>
 <body>
   <header class="site-header">
     <nav class="navbar container">
@@ -14,8 +15,13 @@
         <!-- <a class="active" href="main.html">Home</a> -->
         <a href="main.html">Home</a>
         <a href="books.html">My Collection</a>
-        <a href="login.html">Login</a>
-        <a href="register.html">Register</a>
+        <a href="login.html" class="guest-only">Login</a>
+        <a href="register.html" class="guest-only">Register</a>
+        <button
+        id="logoutButton"
+        class="logout-button user-only"
+        type="button"
+        >Logout</button>
       </div>
     </nav>
   </header>

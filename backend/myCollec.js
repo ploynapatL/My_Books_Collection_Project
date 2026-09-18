@@ -23,64 +23,114 @@ function normalizeGenres(genres) {
   )];
 }
 
-async function getBooks() {
-  return readBooks();
+// Get only books owned by the logged-in user
+async function getBooksByOwner(ownerId) {
+  const books = await readBooks();
+
+  // console.log("Logged-in ownerId:", ownerId);
+  // console.log("Books in JSON:", books);
+
+  return books.filter(
+    book =>
+      Number(book.ownerId) === Number(ownerId)
+  );
 }
 
+// Find one book
 async function getBookById(id) {
   const books = await readBooks();
-  return books.find(book => book.id === Number(id));
+
+  return books.find(
+    book => Number(book.id) === Number(id)
+  );
 }
 
-async function addBook(bookData) {
+// async function getBooks() {
+//   return readBooks();
+// }
+
+// async function getBookById(id) {
+//   const books = await readBooks();
+//   return books.find(book => book.id === Number(id));
+// }
+
+// Add book and automatically attach owner
+async function addBook(bookData, ownerId) {
   const books = await readBooks();
+
   const newId = books.length
-    ? Math.max(...books.map(book => Number(book.id))) + 1
+    ? Math.max(
+        ...books.map(book => Number(book.id))
+      ) + 1
     : 1;
 
   const newBook = {
     id: newId,
     title: bookData.title.trim(),
     author: bookData.author.trim(),
-    genre: normalizeGenres(bookData.genre)
+    genre: normalizeGenres(bookData.genre),
+
+    // Authorization ownership
+    ownerId: Number(ownerId)
   };
 
   books.push(newBook);
+
   await saveBooks(books);
+
   return newBook;
 }
 
+// Update book while keeping its owner
 async function updateBook(id, bookData) {
   const books = await readBooks();
-  const index = books.findIndex(book => book.id === Number(id));
 
-  if (index === -1) return null;
+  const index = books.findIndex(
+    book => Number(book.id) === Number(id)
+  );
+
+  if (index === -1) {
+    return null;
+  }
 
   const updatedBook = {
     id: books[index].id,
     title: bookData.title.trim(),
     author: bookData.author.trim(),
-    genre: normalizeGenres(bookData.genre)
+    genre: normalizeGenres(bookData.genre),
+
+    // IMPORTANT: preserve ownership
+    ownerId: books[index].ownerId
   };
 
   books[index] = updatedBook;
+
   await saveBooks(books);
+
   return updatedBook;
 }
 
 async function deleteBook(id) {
   const books = await readBooks();
-  const index = books.findIndex(book => book.id === Number(id));
 
-  if (index === -1) return null;
+  const index = books.findIndex(
+    book => Number(book.id) === Number(id)
+  );
 
-  const [deletedBook] = books.splice(index, 1);
+  if (index === -1) {
+    return null;
+  }
+
+  const [deletedBook] =
+    books.splice(index, 1);
+
   await saveBooks(books);
+
   return deletedBook;
 }
 
 module.exports = {
-  getBooks,
+  getBooksByOwner,
   getBookById,
   addBook,
   updateBook,
