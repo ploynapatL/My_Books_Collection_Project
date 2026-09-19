@@ -2,6 +2,7 @@ const API_URL = "/api/books";
 
 let books = [];
 let selectedFilterGenres = new Set();
+let pendingDeleteId = null;
 
 const booksGrid = document.getElementById("booksGrid");
 const searchInput = document.getElementById("searchInput");
@@ -13,14 +14,27 @@ const message = document.getElementById("message");
 const modal = document.getElementById("bookModal");
 const bookForm = document.getElementById("bookForm");
 const modalTitle = document.getElementById("modalTitle");
+const modalError = document.getElementById("modalError");
 const bookId = document.getElementById("bookId");
 const titleInput = document.getElementById("titleInput");
 const authorInput = document.getElementById("authorInput");
+
+const deleteModal = document.getElementById("deleteModal");
+const deleteModalText = document.getElementById("deleteModalText");
 
 function showMessage(text = "", isError = false) {
   if (!message) return;
   message.textContent = text;
   message.className = isError ? "message error" : "message";
+}
+
+// Errors that happen while the Add/Edit modal is open must render inside the
+// modal itself -- the page-level #message div sits behind the modal overlay
+// (z-index), so showMessage() alone would be invisible to the user here.
+function showModalError(text = "") {
+  if (!modalError) return;
+  modalError.textContent = text;
+  modalError.classList.toggle("visible", Boolean(text));
 }
 
 function getBookGenres(book) {
@@ -36,21 +50,24 @@ async function loadBooks() {
     }
 
     books = await response.json();
-    populateGenreFilter();
+    buildGenreFilter();
     renderBooks();
   } catch (error) {
     showMessage(error.message, true);
   }
 }
 
-function populateGenreFilter() {
+// Builds the genre filter checkboxes from scratch. Only call this when the
+// underlying genre list can actually change (i.e. after books are (re)loaded)
+// -- NOT on every checkbox click, see syncGenreFilterCheckboxes() below.
+function buildGenreFilter() {
   if (!genreFilter) return;
 
   const allGenres = [...new Set(
     books.flatMap(book => getBookGenres(book)).filter(Boolean)
   )].sort((a, b) => a.localeCompare(b));
 
-  // Remove filters for genres that no longer exist.
+  // Drop filters for genres that no longer exist in the collection.
   selectedFilterGenres = new Set(
     [...selectedFilterGenres].filter(genre => allGenres.includes(genre))
   );
@@ -65,7 +82,7 @@ function populateGenreFilter() {
   allCheckbox.checked = selectedFilterGenres.size === 0;
   allCheckbox.addEventListener("change", () => {
     selectedFilterGenres.clear();
-    populateGenreFilter();
+    syncGenreFilterCheckboxes();
     renderBooks();
   });
 
@@ -86,11 +103,24 @@ function populateGenreFilter() {
       } else {
         selectedFilterGenres.delete(genre);
       }
-      populateGenreFilter();
+      syncGenreFilterCheckboxes();
       renderBooks();
     });
 
     genreFilter.appendChild(label);
+  });
+}
+
+// Keeps every filter checkbox's checked state consistent with
+// selectedFilterGenres, without tearing down and rebuilding the whole
+// filter list (and re-binding every listener) on each individual click.
+function syncGenreFilterCheckboxes() {
+  if (!genreFilter) return;
+
+  genreFilter.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+    checkbox.checked = checkbox.value === ""
+      ? selectedFilterGenres.size === 0
+      : selectedFilterGenres.has(checkbox.value);
   });
 }
 
@@ -179,7 +209,7 @@ function renderBooks() {
     });
 
     card.querySelector(".edit-btn").addEventListener("click", () => openEditModal(book));
-    card.querySelector(".delete-btn").addEventListener("click", () => deleteBook(book.id));
+    card.querySelector(".delete-btn").addEventListener("click", () => openDeleteModal(book));
 
     booksGrid.appendChild(card);
   });
@@ -195,6 +225,7 @@ function openAddModal() {
   modalTitle.textContent = "Add a book";
   bookForm.reset();
   bookId.value = "";
+  showModalError("");
   populateModalGenres([]);
   modal.classList.remove("hidden");
   modal.setAttribute("aria-hidden", "false");
@@ -206,6 +237,7 @@ function openEditModal(book) {
   bookId.value = book.id;
   titleInput.value = book.title;
   authorInput.value = book.author;
+  showModalError("");
   populateModalGenres(getBookGenres(book));
 
   modal.classList.remove("hidden");
@@ -217,10 +249,12 @@ function closeModal() {
   if (!modal) return;
   modal.classList.add("hidden");
   modal.setAttribute("aria-hidden", "true");
+  showModalError("");
 }
 
 async function saveBook(event) {
   event.preventDefault();
+  showModalError("");
 
   const data = {
     title: titleInput.value.trim(),
@@ -229,7 +263,7 @@ async function saveBook(event) {
   };
 
   if (!data.title || !data.author || data.genre.length === 0) {
-    showMessage("Please enter a title, author, and select at least one genre.", true);
+    showModalError("Please enter a title, author, and select at least one genre.");
     return;
   }
 
@@ -254,16 +288,33 @@ async function saveBook(event) {
     showMessage(id ? "Book updated successfully." : "Book added successfully.");
     await loadBooks();
   } catch (error) {
-    showMessage(error.message, true);
+    // Modal is still open at this point (we only close it on success above),
+    // so the error must show inside the modal, not the page's message bar.
+    showModalError(error.message);
   }
 }
 
-async function deleteBook(id) {
-  const book = books.find(item => item.id === id);
-  if (!book) return;
+function openDeleteModal(book) {
+  if (!deleteModal) return;
+  pendingDeleteId = book.id;
+  if (deleteModalText) {
+    deleteModalText.textContent = `Delete "${book.title}" from your collection? This can't be undone.`;
+  }
+  deleteModal.classList.remove("hidden");
+  deleteModal.setAttribute("aria-hidden", "false");
+}
 
-  const confirmed = window.confirm(`Delete "${book.title}" from your collection?`);
-  if (!confirmed) return;
+function closeDeleteModal() {
+  if (!deleteModal) return;
+  pendingDeleteId = null;
+  deleteModal.classList.add("hidden");
+  deleteModal.setAttribute("aria-hidden", "true");
+}
+
+async function confirmDelete() {
+  if (pendingDeleteId === null) return;
+  const id = pendingDeleteId;
+  closeDeleteModal();
 
   try {
     const response = await fetch(`${API_URL}/${id}`, {
@@ -289,10 +340,19 @@ if (booksGrid) {
   document.getElementById("modalBackdrop").addEventListener("click", closeModal);
   bookForm.addEventListener("submit", saveBook);
 
+  if (deleteModal) {
+    document.getElementById("cancelDeleteBtn").addEventListener("click", closeDeleteModal);
+    document.getElementById("deleteModalBackdrop").addEventListener("click", closeDeleteModal);
+    document.getElementById("confirmDeleteBtn").addEventListener("click", confirmDelete);
+  }
+
   searchInput.addEventListener("input", renderBooks);
 
   document.addEventListener("keydown", event => {
-    if (event.key === "Escape" && !modal.classList.contains("hidden")) {
+    if (event.key !== "Escape") return;
+    if (deleteModal && !deleteModal.classList.contains("hidden")) {
+      closeDeleteModal();
+    } else if (!modal.classList.contains("hidden")) {
       closeModal();
     }
   });
