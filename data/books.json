@@ -1,17 +1,25 @@
 [
   {
     "id": 1,
-    "title": "The Hobbit",
-    "author": "J.R.R. Tolkien",
+    "title": "eee",
+    "author": "eeee",
     "genre": [
-      "Fantasy",
-      "Adventure"
+      "Adventure",
+      "Thriller"
     ]
   },
   {
     "id": 2,
-    "title": "Pride and Prejudice",
-    "author": "Jane Austen",
+    "title": "dddd",
+    "author": "ss",
+    "genre": [
+      "Adventure"
+    ]
+  },
+  {
+    "id": 3,
+    "title": "ddcd",
+    "author": "ssss",
     "genre": [
       "Romance",
       "Classic"
@@ -19,27 +27,20 @@
   },
   {
     "id": 4,
-    "title": "Atomic Habits",
-    "author": "James Clear",
+    "title": "sss",
+    "author": "ssss",
     "genre": [
-      "Self-help",
-      "Non-fiction"
+      "Mystery",
+      "Self-help"
     ]
   },
   {
     "id": 5,
-    "title": "Rin Esine",
-    "author": "John Doe",
+    "title": "hello",
+    "author": "lik",
     "genre": [
-      "Fantasy"
-    ]
-  },
-  {
-    "id": 6,
-    "title": "nania",
-    "author": "kuy",
-    "genre": [
-      "Adventure"
+      "Self-help",
+      "Non-fiction"
     ]
   }
 ]

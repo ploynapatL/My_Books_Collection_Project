@@ -43,6 +43,7 @@ async function loadBooks() {
   }
 }
 
+// Populate the genre filter checkboxes based on the genres present in the current book collection.
 function populateGenreFilter() {
   if (!genreFilter) return;
 
@@ -94,12 +95,20 @@ function populateGenreFilter() {
   });
 }
 
+// Populate the modal with genre checkboxes, pre-selecting any genres passed in.
 function populateModalGenres(selectedGenres = []) {
   if (!genreOptions) return;
 
-  const allGenres = [...new Set(
-    books.flatMap(book => getBookGenres(book)).filter(Boolean)
-  )].sort((a, b) => a.localeCompare(b));
+  const allGenres = [
+  "Fantasy",
+  "Adventure",
+  "Romance",
+  "Mystery",
+  "Thriller",
+  "Classic",
+  "Self-help",
+  "Non-fiction"
+  ];
 
   // Keep a small starter list if the dataset is empty.
   const genres = allGenres.length
