@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "id": 1,
+    "username": "HelloWorld",
+    "email": "test@example.com",
+    "password": "$2b$10$X9YNYD/0a4WfFy8u6z3DS.KO0IfQTrLXyAdI1RsUesGBoIKJB/hCa"
+  },
+  {
+    "id": 2,
+    "username": "Computer",
+    "email": "com@example.com",
+    "password": "$2b$10$czsBn8.AXVXT/A.lih7UjOFWcN4yttg/0dqFrh30xdZPbC/rPpgZ6"
+  }
+]

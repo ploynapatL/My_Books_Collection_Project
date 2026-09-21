@@ -1,1 +1,75 @@
-[]
+[
+  {
+    "id": 1,
+    "title": "Test1",
+    "author": "Admin",
+    "genre": [
+      "Fantasy",
+      "Adventure",
+      "Romance"
+    ],
+    "ownerId": 1
+  },
+  {
+    "id": 2,
+    "title": "Test2",
+    "author": "Admin",
+    "genre": [
+      "Adventure",
+      "Romance"
+    ],
+    "ownerId": 1
+  },
+  {
+    "id": 3,
+    "title": "Test3",
+    "author": "Admin",
+    "genre": [
+      "Romance",
+      "Mystery"
+    ],
+    "ownerId": 1
+  },
+  {
+    "id": 4,
+    "title": "Test4",
+    "author": "Admin",
+    "genre": [
+      "Self-help",
+      "Non-fiction"
+    ],
+    "ownerId": 1
+  },
+  {
+    "id": 5,
+    "title": "Test5",
+    "author": "Admin",
+    "genre": [
+      "Mystery",
+      "Thriller",
+      "Non-fiction"
+    ],
+    "ownerId": 1
+  },
+  {
+    "id": 6,
+    "title": "Test6",
+    "author": "Com",
+    "genre": [
+      "Mystery",
+      "Romance",
+      "Non-fiction"
+    ],
+    "ownerId": 2
+  },
+  {
+    "id": 7,
+    "title": "Test7",
+    "author": "Com",
+    "genre": [
+      "Mystery",
+      "Thriller"
+    ],
+    "ownerId": 2
+  }
+]
