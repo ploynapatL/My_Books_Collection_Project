@@ -18,7 +18,7 @@ function authenticateToken(req, res, next) {
     );
 
     req.user = decoded;
-    console.log("Decoded JWT:", decoded);
+    // console.log("Decoded JWT:", decoded);
 
     next();
 
