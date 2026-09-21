@@ -89,20 +89,20 @@ app.post("/api/register", async (req, res) => {
 
 // LOGIN
 app.post("/api/login", async (req, res) => {
-  const { email, password } = req.body;
+  const { identifier, password } = req.body;
 
-  if (!email || !password) {
+  if (!identifier || !password) {
     return res.status(400).json({
-      error: "Email and password are required"
+      error: "Username/email and password are required"
     });
   }
 
   try {
-    const user = await userAuth.getUserByEmail(email);
+    const user = await userAuth.getUserByIdentifier(identifier);
 
     if (!user) {
       return res.status(401).json({
-        error: "Invalid email or password"
+        error: "Invalid username/email or password"
       });
     }
 
@@ -113,7 +113,7 @@ app.post("/api/login", async (req, res) => {
 
     if (!passwordCorrect) {
       return res.status(401).json({
-        error: "Invalid email or password"
+        error: "Invalid username/email or password"
       });
     }
 

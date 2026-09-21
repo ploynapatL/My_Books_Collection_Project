@@ -1,10 +1,19 @@
 const fs = require("fs/promises");
 const path = require("path");
 
-const DATA_FILE = path.join(__dirname, "..", "data", "users.json");
+const DATA_FILE = path.join(
+  __dirname,
+  "..",
+  "data",
+  "users.json"
+);
 
 async function readUsers() {
-  const data = await fs.readFile(DATA_FILE, "utf8");
+  const data = await fs.readFile(
+    DATA_FILE,
+    "utf8"
+  );
+
   return JSON.parse(data);
 }
 
@@ -16,19 +25,41 @@ async function saveUsers(users) {
   );
 }
 
+
+// Find user by email
 async function getUserByEmail(email) {
   const users = await readUsers();
 
   return users.find(
-    user => user.email.toLowerCase() === email.toLowerCase()
+    user =>
+      user.email.toLowerCase() ===
+      email.toLowerCase()
   );
 }
+
+
+// Find user by either username or email
+async function getUserByIdentifier(identifier) {
+  const users = await readUsers();
+
+  const normalizedIdentifier =
+    identifier.trim().toLowerCase();
+
+  return users.find(
+    user =>
+      user.email.toLowerCase() === normalizedIdentifier ||
+      user.username.toLowerCase() === normalizedIdentifier
+  );
+}
+
 
 async function addUser(userData) {
   const users = await readUsers();
 
   const newId = users.length
-    ? Math.max(...users.map(user => Number(user.id))) + 1
+    ? Math.max(
+        ...users.map(user => Number(user.id))
+      ) + 1
     : 1;
 
   const newUser = {
@@ -45,8 +76,10 @@ async function addUser(userData) {
   return newUser;
 }
 
+
 module.exports = {
   readUsers,
   getUserByEmail,
+  getUserByIdentifier,
   addUser
 };
