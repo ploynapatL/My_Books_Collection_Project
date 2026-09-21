@@ -6,13 +6,22 @@
   <title>myBook — My Collection</title>
   <link rel="stylesheet" href="style.css">
 </head>
+<script src="auth.js"></script>
 <body>
   <header class="site-header">
     <nav class="navbar container">
       <a class="brand" href="main.html"><span class="brand-mark">m</span>myBook</a>
       <div class="nav-links">
         <a href="main.html">Home</a>
-        <a class="active" href="books.html">My Collection</a>
+        <!-- <a class="active" href="books.html">My Collection</a> -->
+        <a href="books.html">My Collection</a>
+        <a href="login.html" class="guest-only">Login</a>
+        <a href="register.html" class="guest-only">Register</a>
+        <button
+        id="logoutButton"
+        class="logout-button user-only"
+        type="button"
+        >Logout</button>
       </div>
     </nav>
   </header>
@@ -62,8 +71,22 @@
           <legend>Genres <span>(select one or more)</span></legend>
           <div id="genreOptions" class="genre-options modal-genres"></div>
         </fieldset>
+        <div id="modalError" class="modal-error" role="alert" aria-live="assertive"></div>
         <button class="button primary full" type="submit" id="saveBookBtn">Save Book</button>
       </form>
+    </section>
+  </div>
+
+  <div id="deleteModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop" id="deleteModalBackdrop"></div>
+    <section class="modal-card modal-card-sm" role="alertdialog" aria-modal="true" aria-labelledby="deleteModalTitle" aria-describedby="deleteModalText">
+      <span class="eyebrow">Confirm deletion</span>
+      <h2 id="deleteModalTitle">Delete this book?</h2>
+      <p id="deleteModalText"></p>
+      <div class="modal-actions">
+        <button type="button" class="button ghost" id="cancelDeleteBtn">Cancel</button>
+        <button type="button" class="button danger" id="confirmDeleteBtn">Delete</button>
+      </div>
     </section>
   </div>
 

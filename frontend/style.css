@@ -32,6 +32,80 @@ button, input, select { font: inherit; }
 button { cursor: pointer; }
 .container { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
 
+/* =========================
+   Authentication
+========================= */
+
+.auth-page {
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 460px;
+  padding: 36px;
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #dddddd);
+  border-radius: 18px;
+}
+
+.auth-card h1 {
+  margin-top: 8px;
+  margin-bottom: 24px;
+}
+
+.auth-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.auth-card label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.auth-card input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border, #cccccc);
+  border-radius: 10px;
+  font: inherit;
+}
+
+.auth-card input:focus {
+  outline: none;
+  border-color: #333333;
+}
+
+.auth-card .button {
+  margin-top: 8px;
+}
+
+.auth-card p {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.auth-card .message {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.auth-card .message.error {
+  color: #b42318;
+}
+
+/* =========================
+   Authentication
+========================= */
+
 .site-header {
   position: sticky; top: 0; z-index: 20;
   background: rgba(248,244,233,.92);
@@ -455,6 +529,43 @@ p { color: var(--muted); }
   padding: 12px;
   outline: none;
 }
+
+.modal-error {
+  display: none;
+  color: #a34e4e;
+  background: rgba(163, 78, 78, .08);
+  border: 1px solid rgba(163, 78, 78, .25);
+  border-radius: 11px;
+  padding: 10px 14px;
+  font-size: .85rem;
+  font-weight: 600;
+}
+.modal-error.visible { display: block; }
+
+.modal-card-sm { width: min(420px, 100%); }
+.modal-card-sm p { margin: 4px 0 0; }
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.button.ghost {
+  background: transparent;
+  color: var(--forest);
+  border: 1px solid rgba(39,73,54,.18);
+  box-shadow: none;
+}
+.button.ghost:hover { background: var(--sage-light); }
+
+.button.danger {
+  background: #a34e4e;
+  color: #fff;
+  box-shadow: 0 10px 22px rgba(163,78,78,.18);
+}
+.button.danger:hover { background: #8f4444; }
 
 /* ------------------------------------------------------------ */
 
