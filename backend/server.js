@@ -42,6 +42,17 @@ app.get("/api/auth/verify", authenticateToken, (req, res) => {
   });
 });
 
+// GET CURRENT USER
+app.get("/api/me", authenticateToken, (req, res) => {
+  res.status(200).json({
+    user: {
+      id: req.user.id,
+      username: req.user.username,
+      email: req.user.email
+    }
+  });
+});
+
 // REGISTER
 app.post("/api/register", async (req, res) => {
   const { username, email, password } = req.body;
@@ -144,7 +155,7 @@ app.post("/api/login", async (req, res) => {
 });
 
 // READ all books
-app.get("/api/books", authenticateToken, async (req, res) => {
+app.get("/api/books", authenticateToken , async (req, res) => {
   try {
     const books = await myCollec.getBooksByOwner(req.user.id);
     res.status(200).json(books);
@@ -155,17 +166,19 @@ app.get("/api/books", authenticateToken, async (req, res) => {
 });
 
 // READ one book
-app.get("/api/books/:id", async (req, res) => {
+app.get("/api/books/:id", authenticateToken, async (req, res) => {
   try {
-    const book = await myCollec.getBookById(req.params.id);
+    const book = await myCollec.getBookById(req.params.id, req.user.id);
 
     if (!book) {
       return res.status(404).json({ error: "Book not found" });
     }
 
     res.status(200).json(book);
+
   } catch (error) {
     console.error(error);
+
     res.status(500).json({ error: "Failed to find book" });
   }
 });

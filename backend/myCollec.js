@@ -1,58 +1,71 @@
 const fs = require("fs/promises");
 const path = require("path");
 
-const DATA_FILE = path.join(__dirname, "..", "data", "books.json");
+const DATA_FILE = path.join(
+  __dirname,
+  "..",
+  "data",
+  "books.json"
+);
 
 async function readBooks() {
-  const data = await fs.readFile(DATA_FILE, "utf8");
+  const data = await fs.readFile(
+    DATA_FILE,
+    "utf8"
+  );
+
   return JSON.parse(data);
 }
 
 async function saveBooks(books) {
-  await fs.writeFile(DATA_FILE, JSON.stringify(books, null, 2) + "\n", "utf8");
+  await fs.writeFile(
+    DATA_FILE,
+    JSON.stringify(books, null, 2) + "\n",
+    "utf8"
+  );
 }
 
 function normalizeGenres(genres) {
   if (!Array.isArray(genres)) return [];
 
-  return [...new Set(
-    genres
-      .filter(genre => typeof genre === "string")
-      .map(genre => genre.trim())
-      .filter(Boolean)
-  )];
+  return [
+    ...new Set(
+      genres
+        .filter(
+          genre => typeof genre === "string"
+        )
+        .map(
+          genre => genre.trim()
+        )
+        .filter(Boolean)
+    )
+  ];
 }
+
 
 // Get only books owned by the logged-in user
 async function getBooksByOwner(ownerId) {
   const books = await readBooks();
 
-  // console.log("Logged-in ownerId:", ownerId);
-  // console.log("Books in JSON:", books);
-
   return books.filter(
     book =>
+      Number(book.ownerId) ===
+      Number(ownerId)
+  );
+}
+
+
+// Find one book owned by the logged-in user
+async function getBookById(id, ownerId) {
+  const books = await readBooks();
+
+  return books.find(
+    book =>
+      Number(book.id) === Number(id) &&
       Number(book.ownerId) === Number(ownerId)
   );
 }
 
-// Find one book
-async function getBookById(id) {
-  const books = await readBooks();
-
-  return books.find(
-    book => Number(book.id) === Number(id)
-  );
-}
-
-// async function getBooks() {
-//   return readBooks();
-// }
-
-// async function getBookById(id) {
-//   const books = await readBooks();
-//   return books.find(book => book.id === Number(id));
-// }
 
 // Add book and automatically attach owner
 async function addBook(bookData, ownerId) {
@@ -60,18 +73,27 @@ async function addBook(bookData, ownerId) {
 
   const newId = books.length
     ? Math.max(
-        ...books.map(book => Number(book.id))
+        ...books.map(
+          book => Number(book.id)
+        )
       ) + 1
     : 1;
 
   const newBook = {
     id: newId,
-    title: bookData.title.trim(),
-    author: bookData.author.trim(),
-    genre: normalizeGenres(bookData.genre),
+
+    title:
+      bookData.title.trim(),
+
+    author:
+      bookData.author.trim(),
+
+    genre:
+      normalizeGenres(bookData.genre),
 
     // Authorization ownership
-    ownerId: Number(ownerId)
+    ownerId:
+      Number(ownerId)
   };
 
   books.push(newBook);
@@ -81,12 +103,19 @@ async function addBook(bookData, ownerId) {
   return newBook;
 }
 
-// Update book while keeping its owner
-async function updateBook(id, bookData) {
+
+// Update only a book owned by the logged-in user
+async function updateBook(
+  id,
+  bookData,
+  ownerId
+) {
   const books = await readBooks();
 
   const index = books.findIndex(
-    book => Number(book.id) === Number(id)
+    book =>
+      Number(book.id) === Number(id) &&
+      Number(book.ownerId) === Number(ownerId)
   );
 
   if (index === -1) {
@@ -94,13 +123,21 @@ async function updateBook(id, bookData) {
   }
 
   const updatedBook = {
-    id: books[index].id,
-    title: bookData.title.trim(),
-    author: bookData.author.trim(),
-    genre: normalizeGenres(bookData.genre),
+    id:
+      books[index].id,
 
-    // IMPORTANT: preserve ownership
-    ownerId: books[index].ownerId
+    title:
+      bookData.title.trim(),
+
+    author:
+      bookData.author.trim(),
+
+    genre:
+      normalizeGenres(bookData.genre),
+
+    // Preserve ownership
+    ownerId:
+      books[index].ownerId
   };
 
   books[index] = updatedBook;
@@ -110,11 +147,15 @@ async function updateBook(id, bookData) {
   return updatedBook;
 }
 
-async function deleteBook(id) {
+
+// Delete only a book owned by the logged-in user
+async function deleteBook(id, ownerId) {
   const books = await readBooks();
 
   const index = books.findIndex(
-    book => Number(book.id) === Number(id)
+    book =>
+      Number(book.id) === Number(id) &&
+      Number(book.ownerId) === Number(ownerId)
   );
 
   if (index === -1) {
@@ -128,6 +169,7 @@ async function deleteBook(id) {
 
   return deletedBook;
 }
+
 
 module.exports = {
   getBooksByOwner,
