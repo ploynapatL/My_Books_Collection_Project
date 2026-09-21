@@ -314,18 +314,16 @@ function getFilteredBooks() {
         .toLowerCase()
         .includes(query);
 
-    // A book passes if it contains at least one selected genre.
+    // A book passes only if it contains ALL selected genres.
+    // If no genres are selected, all books pass this filter.
     const matchesGenre =
-      selectedFilterGenres.size === 0 ||
-      [...selectedFilterGenres].some(
-        genre =>
-          genres.includes(genre)
-      );
+        selectedFilterGenres.size === 0 ||
+        [...selectedFilterGenres].every(
+            genre =>
+                genres.includes(genre)
+        );
 
-    return (
-      matchesSearch &&
-      matchesGenre
-    );
+    return matchesSearch && matchesGenre;
   });
 }
 
