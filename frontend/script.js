@@ -1,5 +1,16 @@
 const API_URL = "/api/books";
 
+const DEFAULT_GENRES = [
+  "Fantasy",
+  "Adventure",
+  "Romance",
+  "Mystery",
+  "Thriller",
+  "Classic",
+  "Self-help",
+  "Non-fiction"
+];
+
 function getAuthHeaders(includeJson = false) {
   const token =
     localStorage.getItem("token");
@@ -40,8 +51,10 @@ const deleteModalText = document.getElementById("deleteModalText");
 
 function showMessage(text = "", isError = false) {
   if (!message) return;
+
   message.textContent = text;
-  message.className = isError ? "message error" : "message";
+  message.className =
+    isError ? "message error" : "message";
 }
 
 // Errors that happen while the Add/Edit modal is open must render inside the
@@ -49,12 +62,18 @@ function showMessage(text = "", isError = false) {
 // (z-index), so showMessage() alone would be invisible to the user here.
 function showModalError(text = "") {
   if (!modalError) return;
+
   modalError.textContent = text;
-  modalError.classList.toggle("visible", Boolean(text));
+  modalError.classList.toggle(
+    "visible",
+    Boolean(text)
+  );
 }
 
 function getBookGenres(book) {
-  return Array.isArray(book.genre) ? book.genre : [];
+  return Array.isArray(book.genre)
+    ? book.genre
+    : [];
 }
 
 async function checkAuthentication() {
@@ -66,11 +85,12 @@ async function checkAuthentication() {
   }
 
   try {
-    const response = await fetch("/api/auth/verify", {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    const response =
+      await fetch("/api/auth/verify", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
 
     if (!response.ok) {
       localStorage.removeItem("token");
@@ -81,7 +101,11 @@ async function checkAuthentication() {
     return true;
 
   } catch (error) {
-    console.error("Authentication check failed:", error);
+    console.error(
+      "Authentication check failed:",
+      error
+    );
+
     window.location.href = "login.html";
     return false;
   }
@@ -102,7 +126,9 @@ async function loadBooks() {
     }
 
     if (!response.ok) {
-      throw new Error("Could not load books.");
+      throw new Error(
+        "Could not load books."
+      );
     }
 
     books = await response.json();
@@ -121,38 +147,58 @@ async function loadBooks() {
 function buildGenreFilter() {
   if (!genreFilter) return;
 
-  const allGenres = [...new Set(
-    books.flatMap(book => getBookGenres(book)).filter(Boolean)
-  )].sort((a, b) => a.localeCompare(b));
+  const allGenres = [
+    ...new Set(
+      books
+        .flatMap(book => getBookGenres(book))
+        .filter(Boolean)
+    )
+  ].sort((a, b) =>
+    a.localeCompare(b)
+  );
 
   // Drop filters for genres that no longer exist in the collection.
   selectedFilterGenres = new Set(
-    [...selectedFilterGenres].filter(genre => allGenres.includes(genre))
+    [...selectedFilterGenres].filter(
+      genre => allGenres.includes(genre)
+    )
   );
 
   genreFilter.innerHTML = "";
 
-  const allLabel = document.createElement("label");
-  allLabel.className = "genre-check all-genres";
+  const allLabel =
+    document.createElement("label");
+
+  allLabel.className =
+    "genre-check all-genres";
+
   allLabel.innerHTML =
     '<input type="checkbox" value=""> <span>All Genres</span>';
 
-  const allCheckbox = allLabel.querySelector("input");
+  const allCheckbox =
+    allLabel.querySelector("input");
 
   allCheckbox.checked =
     selectedFilterGenres.size === 0;
 
-  allCheckbox.addEventListener("change", () => {
-    selectedFilterGenres.clear();
-    syncGenreFilterCheckboxes();
-    renderBooks();
-  });
+  allCheckbox.addEventListener(
+    "change",
+    () => {
+      selectedFilterGenres.clear();
+
+      syncGenreFilterCheckboxes();
+      renderBooks();
+    }
+  );
 
   genreFilter.appendChild(allLabel);
 
   allGenres.forEach(genre => {
-    const label = document.createElement("label");
+    const label =
+      document.createElement("label");
+
     label.className = "genre-check";
+
     label.innerHTML =
       `<input type="checkbox" value=""> <span></span>`;
 
@@ -160,22 +206,26 @@ function buildGenreFilter() {
       label.querySelector("input");
 
     checkbox.value = genre;
+
     checkbox.checked =
       selectedFilterGenres.has(genre);
 
     label.querySelector("span").textContent =
       genre;
 
-    checkbox.addEventListener("change", () => {
-      if (checkbox.checked) {
-        selectedFilterGenres.add(genre);
-      } else {
-        selectedFilterGenres.delete(genre);
-      }
+    checkbox.addEventListener(
+      "change",
+      () => {
+        if (checkbox.checked) {
+          selectedFilterGenres.add(genre);
+        } else {
+          selectedFilterGenres.delete(genre);
+        }
 
-      syncGenreFilterCheckboxes();
-      renderBooks();
-    });
+        syncGenreFilterCheckboxes();
+        renderBooks();
+      }
+    );
 
     genreFilter.appendChild(label);
   });
@@ -188,41 +238,34 @@ function syncGenreFilterCheckboxes() {
   if (!genreFilter) return;
 
   genreFilter
-    .querySelectorAll('input[type="checkbox"]')
+    .querySelectorAll(
+      'input[type="checkbox"]'
+    )
     .forEach(checkbox => {
       checkbox.checked =
         checkbox.value === ""
           ? selectedFilterGenres.size === 0
-          : selectedFilterGenres.has(checkbox.value);
+          : selectedFilterGenres.has(
+              checkbox.value
+            );
     });
 }
 
-function populateModalGenres(selectedGenres = []) {
+// Populate the modal with all default genre checkboxes,
+// pre-selecting any genres already assigned to the book.
+function populateModalGenres(
+  selectedGenres = []
+) {
   if (!genreOptions) return;
-
-  const allGenres = [...new Set(
-    books.flatMap(book => getBookGenres(book)).filter(Boolean)
-  )].sort((a, b) => a.localeCompare(b));
-
-  // Keep a small starter list if the dataset is empty.
-  const genres = allGenres.length
-    ? allGenres
-    : [
-        "Fantasy",
-        "Adventure",
-        "Romance",
-        "Mystery",
-        "Thriller",
-        "Classic",
-        "Self-help",
-        "Non-fiction"
-      ];
 
   genreOptions.innerHTML = "";
 
-  genres.forEach(genre => {
-    const label = document.createElement("label");
+  DEFAULT_GENRES.forEach(genre => {
+    const label =
+      document.createElement("label");
+
     label.className = "genre-check";
+
     label.innerHTML =
       `<input type="checkbox" name="genre" value=""> <span></span>`;
 
@@ -230,6 +273,7 @@ function populateModalGenres(selectedGenres = []) {
       label.querySelector("input");
 
     checkbox.value = genre;
+
     checkbox.checked =
       selectedGenres.includes(genre);
 
@@ -252,32 +296,44 @@ function getSelectedModalGenres() {
 
 function getFilteredBooks() {
   const query = searchInput
-    ? searchInput.value.trim().toLowerCase()
+    ? searchInput.value
+        .trim()
+        .toLowerCase()
     : "";
 
   return books.filter(book => {
-    const genres = getBookGenres(book);
+    const genres =
+      getBookGenres(book);
 
     const matchesSearch =
       !query ||
-      book.title.toLowerCase().includes(query) ||
-      book.author.toLowerCase().includes(query);
+      book.title
+        .toLowerCase()
+        .includes(query) ||
+      book.author
+        .toLowerCase()
+        .includes(query);
 
     // A book passes if it contains at least one selected genre.
     const matchesGenre =
       selectedFilterGenres.size === 0 ||
       [...selectedFilterGenres].some(
-        genre => genres.includes(genre)
+        genre =>
+          genres.includes(genre)
       );
 
-    return matchesSearch && matchesGenre;
+    return (
+      matchesSearch &&
+      matchesGenre
+    );
   });
 }
 
 function renderBooks() {
   if (!booksGrid) return;
 
-  const filteredBooks = getFilteredBooks();
+  const filteredBooks =
+    getFilteredBooks();
 
   booksGrid.innerHTML = "";
 
@@ -289,39 +345,61 @@ function renderBooks() {
 
     card.innerHTML = `
       <div class="book-decoration" aria-hidden="true"></div>
+
       <h3></h3>
+
       <p class="author"></p>
+
       <div class="card-genres"></div>
 
       <div class="card-actions">
-        <button type="button" class="edit-btn">
+        <button
+          type="button"
+          class="edit-btn"
+        >
           Edit
         </button>
 
-        <button type="button" class="delete-btn">
+        <button
+          type="button"
+          class="delete-btn"
+        >
           Delete
         </button>
       </div>
     `;
 
-    card.querySelector("h3").textContent =
-      book.title;
+    card
+      .querySelector("h3")
+      .textContent =
+        book.title;
 
-    card.querySelector(".author").textContent =
-      `by ${book.author}`;
+    card
+      .querySelector(".author")
+      .textContent =
+        `by ${book.author}`;
 
     const genresContainer =
-      card.querySelector(".card-genres");
+      card.querySelector(
+        ".card-genres"
+      );
 
-    getBookGenres(book).forEach(genre => {
-      const tag =
-        document.createElement("span");
+    getBookGenres(book)
+      .forEach(genre => {
+        const tag =
+          document.createElement(
+            "span"
+          );
 
-      tag.className = "genre-tag";
-      tag.textContent = genre;
+        tag.className =
+          "genre-tag";
 
-      genresContainer.appendChild(tag);
-    });
+        tag.textContent =
+          genre;
+
+        genresContainer
+          .appendChild(tag);
+      });
 
     card
       .querySelector(".edit-btn")
@@ -351,34 +429,59 @@ function renderBooks() {
 function openAddModal() {
   if (!modal) return;
 
-  modalTitle.textContent = "Add a book";
+  modalTitle.textContent =
+    "Add a book";
 
   bookForm.reset();
+
   bookId.value = "";
 
   showModalError("");
+
+  // Always show every genre defined by the application.
   populateModalGenres([]);
 
-  modal.classList.remove("hidden");
-  modal.setAttribute("aria-hidden", "false");
+  modal.classList.remove(
+    "hidden"
+  );
+
+  modal.setAttribute(
+    "aria-hidden",
+    "false"
+  );
 
   titleInput.focus();
 }
 
 function openEditModal(book) {
-  modalTitle.textContent = "Edit your book";
+  modalTitle.textContent =
+    "Edit your book";
 
-  bookId.value = book.id;
-  titleInput.value = book.title;
-  authorInput.value = book.author;
+  bookId.value =
+    book.id;
+
+  titleInput.value =
+    book.title;
+
+  authorInput.value =
+    book.author;
 
   showModalError("");
+
+  // Show all default genres while checking the genres
+  // that are already assigned to this book.
   populateModalGenres(
     getBookGenres(book)
   );
 
-  modal.classList.remove("hidden");
-  modal.setAttribute("aria-hidden", "false");
+  modal.classList.remove(
+    "hidden"
+  );
+
+  modal.setAttribute(
+    "aria-hidden",
+    "false"
+  );
 
   titleInput.focus();
 }
@@ -386,8 +489,14 @@ function openEditModal(book) {
 function closeModal() {
   if (!modal) return;
 
-  modal.classList.add("hidden");
-  modal.setAttribute("aria-hidden", "true");
+  modal.classList.add(
+    "hidden"
+  );
+
+  modal.setAttribute(
+    "aria-hidden",
+    "true"
+  );
 
   showModalError("");
 }
@@ -398,9 +507,14 @@ async function saveBook(event) {
   showModalError("");
 
   const data = {
-    title: titleInput.value.trim(),
-    author: authorInput.value.trim(),
-    genre: getSelectedModalGenres()
+    title:
+      titleInput.value.trim(),
+
+    author:
+      authorInput.value.trim(),
+
+    genre:
+      getSelectedModalGenres()
   };
 
   if (
@@ -411,26 +525,39 @@ async function saveBook(event) {
     showModalError(
       "Please enter a title, author, and select at least one genre."
     );
+
     return;
   }
 
-  const id = bookId.value;
-  const method = id ? "PUT" : "POST";
+  const id =
+    bookId.value;
+
+  const method =
+    id ? "PUT" : "POST";
+
   const url =
-    id ? `${API_URL}/${id}` : API_URL;
+    id
+      ? `${API_URL}/${id}`
+      : API_URL;
 
   try {
-    const response = await fetch(url, {
-      method,
-      headers: getAuthHeaders(true),
-      body: JSON.stringify(data)
-    });
+    const response =
+      await fetch(url, {
+        method,
+        headers:
+          getAuthHeaders(true),
 
-    const result = await response.json();
+        body:
+          JSON.stringify(data)
+      });
+
+    const result =
+      await response.json();
 
     if (!response.ok) {
       throw new Error(
-        result.error || "Request failed."
+        result.error ||
+        "Request failed."
       );
     }
 
@@ -447,21 +574,27 @@ async function saveBook(event) {
   } catch (error) {
     // Modal is still open at this point (we only close it on success above),
     // so the error must show inside the modal, not the page's message bar.
-    showModalError(error.message);
+    showModalError(
+      error.message
+    );
   }
 }
 
 function openDeleteModal(book) {
   if (!deleteModal) return;
 
-  pendingDeleteId = book.id;
+  pendingDeleteId =
+    book.id;
 
   if (deleteModalText) {
     deleteModalText.textContent =
       `Delete "${book.title}" from your collection? This can't be undone.`;
   }
 
-  deleteModal.classList.remove("hidden");
+  deleteModal.classList.remove(
+    "hidden"
+  );
+
   deleteModal.setAttribute(
     "aria-hidden",
     "false"
@@ -473,7 +606,10 @@ function closeDeleteModal() {
 
   pendingDeleteId = null;
 
-  deleteModal.classList.add("hidden");
+  deleteModal.classList.add(
+    "hidden"
+  );
+
   deleteModal.setAttribute(
     "aria-hidden",
     "true"
@@ -481,22 +617,30 @@ function closeDeleteModal() {
 }
 
 async function confirmDelete() {
-  if (pendingDeleteId === null) return;
+  if (
+    pendingDeleteId === null
+  ) {
+    return;
+  }
 
-  const id = pendingDeleteId;
+  const id =
+    pendingDeleteId;
 
   closeDeleteModal();
 
   try {
-    const response = await fetch(
-      `${API_URL}/${id}`,
-      {
-        method: "DELETE",
-        headers: getAuthHeaders()
-      }
-    );
+    const response =
+      await fetch(
+        `${API_URL}/${id}`,
+        {
+          method: "DELETE",
+          headers:
+            getAuthHeaders()
+        }
+      );
 
-    const result = await response.json();
+    const result =
+      await response.json();
 
     if (!response.ok) {
       throw new Error(
@@ -512,16 +656,17 @@ async function confirmDelete() {
     await loadBooks();
 
   } catch (error) {
-    showMessage(error.message, true);
+    showMessage(
+      error.message,
+      true
+    );
   }
 }
 
 async function initializeBooksPage() {
-  // if (!booksGrid) return;
-
-  // const authenticated = await checkAuthentication();
-
-  // if (!authenticated) return;
+  // Authentication is already enforced by the protected /api/books endpoint.
+  // loadBooks() handles a 401 response by removing the invalid token
+  // and redirecting the user back to the login page.
 
   document
     .getElementById("openAddBtn")
@@ -551,21 +696,27 @@ async function initializeBooksPage() {
 
   if (deleteModal) {
     document
-      .getElementById("cancelDeleteBtn")
+      .getElementById(
+        "cancelDeleteBtn"
+      )
       .addEventListener(
         "click",
         closeDeleteModal
       );
 
     document
-      .getElementById("deleteModalBackdrop")
+      .getElementById(
+        "deleteModalBackdrop"
+      )
       .addEventListener(
         "click",
         closeDeleteModal
       );
 
     document
-      .getElementById("confirmDeleteBtn")
+      .getElementById(
+        "confirmDeleteBtn"
+      )
       .addEventListener(
         "click",
         confirmDelete
@@ -580,17 +731,23 @@ async function initializeBooksPage() {
   document.addEventListener(
     "keydown",
     event => {
-      if (event.key !== "Escape") return;
+      if (
+        event.key !== "Escape"
+      ) {
+        return;
+      }
 
       if (
         deleteModal &&
-        !deleteModal.classList.contains("hidden")
+        !deleteModal.classList
+          .contains("hidden")
       ) {
         closeDeleteModal();
 
       } else if (
         modal &&
-        !modal.classList.contains("hidden")
+        !modal.classList
+          .contains("hidden")
       ) {
         closeModal();
       }
