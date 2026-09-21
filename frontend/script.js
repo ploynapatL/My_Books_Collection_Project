@@ -1,5 +1,21 @@
 const API_URL = "/api/books";
 
+function getAuthHeaders(includeJson = false) {
+  const token =
+    localStorage.getItem("token");
+
+  const headers = {
+    Authorization: `Bearer ${token}`
+  };
+
+  if (includeJson) {
+    headers["Content-Type"] =
+      "application/json";
+  }
+
+  return headers;
+}
+
 let books = [];
 let selectedFilterGenres = new Set();
 
@@ -23,21 +39,70 @@ function showMessage(text = "", isError = false) {
   message.className = isError ? "message error" : "message";
 }
 
+const token = localStorage.getItem("token");
+
+if (!token) {
+  window.location.href = "login.html";
+}
+
 function getBookGenres(book) {
   return Array.isArray(book.genre) ? book.genre : [];
 }
 
+async function checkAuthentication() {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    window.location.href = "login.html";
+    return false;
+  }
+
+  try {
+    const response = await fetch("/api/auth/verify", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      localStorage.removeItem("token");
+      window.location.href = "login.html";
+      return false;
+    }
+
+    return true;
+
+  } catch (error) {
+    console.error("Authentication check failed:", error);
+    window.location.href = "login.html";
+    return false;
+  }
+}
+
+// checkAuthentication();
+
 async function loadBooks() {
   try {
-    const response = await fetch(API_URL);
+    const response = await fetch(API_URL, {
+      headers: getAuthHeaders()
+    });
+
+    if (response.status === 401) {
+      localStorage.removeItem("token");
+      window.location.href = "login.html";
+      return;
+    }
 
     if (!response.ok) {
       throw new Error("Could not load books.");
     }
 
     books = await response.json();
+    console.log("Books received from API:", books);
+
     populateGenreFilter();
     renderBooks();
+
   } catch (error) {
     showMessage(error.message, true);
   }
@@ -239,10 +304,10 @@ async function saveBook(event) {
 
   try {
     const response = await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
+  method,
+  headers: getAuthHeaders(true),
+  body: JSON.stringify(data)
+  });
 
     const result = await response.json();
 
@@ -267,8 +332,9 @@ async function deleteBook(id) {
 
   try {
     const response = await fetch(`${API_URL}/${id}`, {
-      method: "DELETE"
-    });
+  method: "DELETE",
+  headers: getAuthHeaders()
+  });
 
     const result = await response.json();
 
@@ -283,19 +349,48 @@ async function deleteBook(id) {
   }
 }
 
-if (booksGrid) {
-  document.getElementById("openAddBtn").addEventListener("click", openAddModal);
-  document.getElementById("closeModalBtn").addEventListener("click", closeModal);
-  document.getElementById("modalBackdrop").addEventListener("click", closeModal);
-  bookForm.addEventListener("submit", saveBook);
+async function initializeBooksPage() {
+  if (!booksGrid) return;
 
-  searchInput.addEventListener("input", renderBooks);
+  const authenticated = await checkAuthentication();
 
-  document.addEventListener("keydown", event => {
-    if (event.key === "Escape" && !modal.classList.contains("hidden")) {
-      closeModal();
+  if (!authenticated) return;
+
+  document
+    .getElementById("openAddBtn")
+    .addEventListener("click", openAddModal);
+
+  document
+    .getElementById("closeModalBtn")
+    .addEventListener("click", closeModal);
+
+  document
+    .getElementById("modalBackdrop")
+    .addEventListener("click", closeModal);
+
+  bookForm.addEventListener(
+    "submit",
+    saveBook
+  );
+
+  searchInput.addEventListener(
+    "input",
+    renderBooks
+  );
+
+  document.addEventListener(
+    "keydown",
+    event => {
+      if (
+        event.key === "Escape" &&
+        !modal.classList.contains("hidden")
+      ) {
+        closeModal();
+      }
     }
-  });
+  );
 
-  loadBooks();
+  await loadBooks();
 }
+
+initializeBooksPage();

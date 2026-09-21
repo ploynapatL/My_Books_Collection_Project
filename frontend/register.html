@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>myBook — Register</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="site-header">
+  <nav class="navbar container">
+
+    <a class="brand" href="main.html">
+      <span class="brand-mark">m</span>myBook
+    </a>
+
+    <div class="nav-links">
+      <a href="main.html">Home</a>
+      <a href="books.html">My Collection</a>
+      <a href="login.html">Login</a>
+      <a class="active" href="register.html">Register</a>
+    </div>
+
+  </nav>
+</header>
+
+<main class="auth-page container">
+
+  <section class="auth-card">
+
+    <span class="eyebrow">Join myBook</span>
+
+    <h1>Create your account</h1>
+
+    <form id="registerForm">
+
+      <label>
+        Username
+        <input
+          id="registerUsername"
+          type="text"
+          required
+        >
+      </label>
+
+      <label>
+        Email
+        <input
+          id="registerEmail"
+          type="email"
+          required
+        >
+      </label>
+
+      <label>
+        Password
+        <input
+          id="registerPassword"
+          type="password"
+          required
+        >
+      </label>
+
+      <button class="button primary full" type="submit">
+        Register
+      </button>
+
+    </form>
+
+    <div
+      id="authMessage"
+      class="message"
+      role="status"
+    ></div>
+
+    <p>
+      Already have an account?
+      <a href="login.html">Login</a>
+    </p>
+
+  </section>
+
+</main>
+
+<script src="auth.js"></script>
+
+</body>
+</html>
