@@ -71,8 +71,22 @@
           <legend>Genres <span>(select one or more)</span></legend>
           <div id="genreOptions" class="genre-options modal-genres"></div>
         </fieldset>
+        <div id="modalError" class="modal-error" role="alert" aria-live="assertive"></div>
         <button class="button primary full" type="submit" id="saveBookBtn">Save Book</button>
       </form>
+    </section>
+  </div>
+
+  <div id="deleteModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop" id="deleteModalBackdrop"></div>
+    <section class="modal-card modal-card-sm" role="alertdialog" aria-modal="true" aria-labelledby="deleteModalTitle" aria-describedby="deleteModalText">
+      <span class="eyebrow">Confirm deletion</span>
+      <h2 id="deleteModalTitle">Delete this book?</h2>
+      <p id="deleteModalText"></p>
+      <div class="modal-actions">
+        <button type="button" class="button ghost" id="cancelDeleteBtn">Cancel</button>
+        <button type="button" class="button danger" id="confirmDeleteBtn">Delete</button>
+      </div>
     </section>
   </div>
 

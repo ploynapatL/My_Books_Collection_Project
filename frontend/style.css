@@ -530,6 +530,43 @@ p { color: var(--muted); }
   outline: none;
 }
 
+.modal-error {
+  display: none;
+  color: #a34e4e;
+  background: rgba(163, 78, 78, .08);
+  border: 1px solid rgba(163, 78, 78, .25);
+  border-radius: 11px;
+  padding: 10px 14px;
+  font-size: .85rem;
+  font-weight: 600;
+}
+.modal-error.visible { display: block; }
+
+.modal-card-sm { width: min(420px, 100%); }
+.modal-card-sm p { margin: 4px 0 0; }
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.button.ghost {
+  background: transparent;
+  color: var(--forest);
+  border: 1px solid rgba(39,73,54,.18);
+  box-shadow: none;
+}
+.button.ghost:hover { background: var(--sage-light); }
+
+.button.danger {
+  background: #a34e4e;
+  color: #fff;
+  box-shadow: 0 10px 22px rgba(163,78,78,.18);
+}
+.button.danger:hover { background: #8f4444; }
+
 /* ------------------------------------------------------------ */
 
 @media (max-width: 900px) {
